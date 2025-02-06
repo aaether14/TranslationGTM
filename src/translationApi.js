@@ -1,24 +1,18 @@
-import { replaceTextWithTranslation } from './textProcessing.js';
-
-export const fetchTranslations = async (texts, targetLang, textNodes) => {
+export const fetchTranslationsFromApi = async (texts, targetLang) => {
   const apiUrl = '{{Translation API Url}}';
   const payload = { texts, targetLang };
 
   try {
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+      const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+      });
 
-    const data = await response.json();
-
-    if (data?.translations && Array.isArray(data.translations)) {
-      replaceTextWithTranslation(textNodes, data.translations);
-    } else {
-      console.error('Invalid API response format:', data);
-    }
+      const data = await response.json();
+      return data?.translations || [];
   } catch (error) {
-    console.error('Error with API call:', error);
+      console.error('API error:', error);
+      return [];
   }
 };

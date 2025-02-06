@@ -24,15 +24,3 @@ export function collectTextNodes(node) {
     while (walker.nextNode()) { }  // Ensure processing of all nodes
     return { texts, textNodes };
 }
-
-export function replaceTextWithTranslation(textNodes, translations) {
-    console.log(JSON.stringify(translations));
-    textNodes.forEach((node, index) => {
-        if (translations[index]) {
-            node.nodeValue = translations[index]['translation'];
-            if (node.parentNode) {
-                node.parentNode.setAttribute('data-translated', 'true');
-            }
-        }
-    });
-}

@@ -1,10 +1,10 @@
 import { collectTextNodes } from './textProcessing.js';
-import { fetchTranslations } from './translationApi.js';
+import { requestTranslations } from './translationManager.js';
 
 export function observeDOMChanges() {
     const { texts, textNodes } = collectTextNodes(document.body);
     if (texts.length > 0) {
-        fetchTranslations(texts, 'it', textNodes);
+        requestTranslations(texts, 'it', textNodes);
     }
 
     const observer = new MutationObserver(mutations => {
@@ -13,7 +13,7 @@ export function observeDOMChanges() {
                 if (node.nodeType === 1) {
                     const { texts: newTexts, textNodes: newTextNodes } = collectTextNodes(node);
                     if (newTexts.length > 0) {
-                        fetchTranslations(newTexts, 'it', newTextNodes);
+                        requestTranslations(newTexts, 'it', newTextNodes);
                     }
                 }
             });
