@@ -14,12 +14,12 @@ export const requestTranslations = (texts, targetLang, textNodes) => {
     });
 
     if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(processPendingTranslations, 200);
+    timeoutId = setTimeout(() => processPendingTranslations(targetLang), 200);
 };
 
-const processPendingTranslations = async () => {
+const processPendingTranslations = async (targetLang) => {
     const texts = Array.from(pendingTexts.keys());
-    const translations = await fetchTranslations(texts, 'it');
+    const translations = await fetchTranslations(texts, targetLang);
 
     const translationsMap = new Map(translations.map(({ text, translation }) => [text, translation]));
 
@@ -38,4 +38,16 @@ const processPendingTranslations = async () => {
     });
 
     timeoutId = null;
+};
+
+export const resetTranslations = () => {
+    const translatedNodes = document.querySelectorAll('[data-translated="true"]');
+    translatedNodes.forEach(node => {
+        const originalText = node.getAttribute('data-original-text');
+        if (originalText) {
+            node.textContent = originalText;
+            node.removeAttribute('data-translated');
+            node.removeAttribute('data-original-text');
+        }
+    });
 };
