@@ -1,7 +1,7 @@
 import { collectTextNodes } from './textProcessing.js';
 import { requestTranslations, resetTranslations } from './translationManager.js';
 
-let currentLang = 'it'; // Default language
+let currentLang = 'it'; 
 let isTranslationActive = true;
 
 export function setTargetLanguage(lang) {

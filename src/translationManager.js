@@ -25,12 +25,17 @@ const processPendingTranslations = async (targetLang) => {
 
     texts.forEach(text => {
         const translatedText = translationsMap.get(text);
-        if (!translatedText) return; // Avoid setting undefined values
+        if (!translatedText) {
+            return; // Avoid setting undefined values
+        }
 
         pendingTexts.get(text).forEach(({ node }) => {
             if (node) {  // Ensure node is still valid
                 node.nodeValue = translatedText;
-                if (node.parentNode) node.parentNode.setAttribute('data-translated', 'true');
+                if (node.parentNode) { 
+                    node.parentNode.setAttribute('data-translated', 'true');
+                    node.parentNode.setAttribute('data-original-text', text);
+                }
             }
         });
 
