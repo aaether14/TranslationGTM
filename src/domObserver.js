@@ -19,6 +19,7 @@ export function deactivateTranslation() {
 export function activateTranslation(language) {
     setStoredActive(true);
     setTargetLanguage(language);
+    location.reload(true);
 }
 
 export function observeDOMChanges() {
@@ -34,9 +35,7 @@ export function observeDOMChanges() {
         requestTranslations(texts, currentLang, textNodes);
     }
 
-    const observer = new MutationObserver(mutations => {
-        console.log('mutation observed');
-        
+    const observer = new MutationObserver(mutations => { 
         let isTranslationActive = getStoredActive();
         let currentLang = getStoredLang();
 
@@ -45,6 +44,10 @@ export function observeDOMChanges() {
         }
 
         mutations.forEach(mutation => {
+            if (mutation.type === "characterData")
+            {
+                console.log('character data')
+            }
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === 1) {
                     const { texts: newTexts, textNodes: newTextNodes } = collectTextNodes(node);
