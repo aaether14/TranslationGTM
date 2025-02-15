@@ -25,7 +25,7 @@ export function observeDOMChanges() {
     let isTranslationActive = getStoredActive();
     let currentLang = getStoredLang();
 
-    if (!getStoredActive()) {
+    if (!isTranslationActive) {
         return;
     }
 
