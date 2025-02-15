@@ -35,6 +35,8 @@ export function observeDOMChanges() {
     }
 
     const observer = new MutationObserver(mutations => {
+        console.log('mutation observed');
+        
         let isTranslationActive = getStoredActive();
         let currentLang = getStoredLang();
 

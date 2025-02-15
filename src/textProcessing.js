@@ -23,21 +23,27 @@ export function collectTextNodes(node) {
                 const translatedLang = parentNode.getAttribute('data-translated');
                 const trimmedText = textNode.nodeValue.trim();
 
-                // Skip if the text is empty, contains quotes, or is already translated to the current language
-                if (!trimmedText || containsQuotes(trimmedText) || translatedLang === currentLang) {
+                if (!trimmedText || containsQuotes(trimmedText)) {
                     return NodeFilter.FILTER_ACCEPT;
                 }
 
-                // Retrieve the translation map from the parent node
                 const translationMap = getTranslationMapFromAttribute(parentNode);
 
-                // Determine the original text
                 let originalText = trimmedText;
-                if (translationMap[trimmedText]) {
-                    originalText = translationMap[trimmedText];
+
+                if (Object.keys(translationMap).length > 0) {
+                    for (const [key, value] of Object.entries(translationMap)) {
+                        if (value === trimmedText) {
+                            originalText = key; 
+                            break;
+                        }
+                    }
                 }
 
-                // Add the original text and text node to the results
+                if (translatedLang === currentLang) {
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+
                 texts.push(originalText);
                 textNodes.push(textNode);
 
