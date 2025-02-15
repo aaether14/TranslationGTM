@@ -1,26 +1,32 @@
 import { collectTextNodes } from './textProcessing.js';
 import { requestTranslations, resetTranslations } from './translationManager.js';
+import { getStoredLang, setStoredLang, getStoredActive, setStoredActive } from './storageManager.js';
 
-let currentLang = 'it'; 
-let isTranslationActive = true;
+export function setTargetLanguage(language) {
+    setStoredLang(language);
 
-export function setTargetLanguage(lang) {
-    currentLang = lang;
-    if (isTranslationActive) {
-        const { texts, textNodes } = collectTextNodes(document.body);
-        if (texts.length > 0) {
-            requestTranslations(texts, currentLang, textNodes);
-        }
+    const { texts, textNodes } = collectTextNodes(document.body);
+    if (texts.length > 0) {
+        requestTranslations(texts, language, textNodes);
     }
 }
 
 export function deactivateTranslation() {
-    isTranslationActive = false;
+    setStoredActive(false);
     resetTranslations();
 }
 
+export function activateTranslation(language) {
+    setStoredActive(true);
+    setTargetLanguage(language);
+}
+
 export function observeDOMChanges() {
-    if (!isTranslationActive) return;
+    if (!getStoredActive()) {
+        return;
+    }
+
+    let currentLang = getStoredLang();
 
     const { texts, textNodes } = collectTextNodes(document.body);
     if (texts.length > 0) {
@@ -28,7 +34,9 @@ export function observeDOMChanges() {
     }
 
     const observer = new MutationObserver(mutations => {
-        if (!isTranslationActive) return;
+        if (!isTranslationActive) { 
+            return;
+        }
 
         mutations.forEach(mutation => {
             mutation.addedNodes.forEach(node => {
