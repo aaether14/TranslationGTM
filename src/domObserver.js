@@ -19,7 +19,7 @@ export function deactivateTranslation() {
 export function activateTranslation(language) {
     setStoredActive(true);
     setTargetLanguage(language);
-    location.reload(true);
+    location.reload();
 }
 
 export function observeDOMChanges() {
@@ -44,10 +44,6 @@ export function observeDOMChanges() {
         }
 
         mutations.forEach(mutation => {
-            if (mutation.type === "characterData")
-            {
-                console.log('character data')
-            }
             mutation.addedNodes.forEach(node => {
                 if (node.nodeType === 1) {
                     const { texts: newTexts, textNodes: newTextNodes } = collectTextNodes(node);
