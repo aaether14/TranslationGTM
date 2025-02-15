@@ -10,7 +10,7 @@ export function setStoredLang(lang) {
 }
 
 export function getStoredActive() {
-    return localStorage.getItem(STORAGE_KEY_ACTIVE) !== 'false';
+    return localStorage.getItem(STORAGE_KEY_ACTIVE) === 'true';
 }
 
 export function setStoredActive(isActive) {

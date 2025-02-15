@@ -33,8 +33,11 @@ const processPendingTranslations = async (targetLang) => {
             if (node) {  // Ensure node is still valid
                 node.nodeValue = translatedText;
                 if (node.parentNode) { 
-                    node.parentNode.setAttribute('data-translated', 'true');
-                    node.parentNode.setAttribute('data-original-text', text);
+                    node.parentNode.setAttribute('data-translated', targetLang);
+                    if (!node.parentNode.hasAttribute('data-original-text'))
+                    {
+                        node.parentNode.setAttribute('data-original-text', text);
+                    }
                 }
             }
         });
@@ -46,7 +49,7 @@ const processPendingTranslations = async (targetLang) => {
 };
 
 export const resetTranslations = () => {
-    const translatedNodes = document.querySelectorAll('[data-translated="true"]');
+    const translatedNodes = document.querySelectorAll('[data-translated]');
     translatedNodes.forEach(node => {
         const originalText = node.getAttribute('data-original-text');
         if (originalText) {

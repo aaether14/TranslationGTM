@@ -22,11 +22,12 @@ export function activateTranslation(language) {
 }
 
 export function observeDOMChanges() {
+    let isTranslationActive = getStoredActive();
+    let currentLang = getStoredLang();
+
     if (!getStoredActive()) {
         return;
     }
-
-    let currentLang = getStoredLang();
 
     const { texts, textNodes } = collectTextNodes(document.body);
     if (texts.length > 0) {
@@ -34,6 +35,9 @@ export function observeDOMChanges() {
     }
 
     const observer = new MutationObserver(mutations => {
+        let isTranslationActive = getStoredActive();
+        let currentLang = getStoredLang();
+
         if (!isTranslationActive) { 
             return;
         }

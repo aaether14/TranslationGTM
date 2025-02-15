@@ -21,7 +21,9 @@ if (!window.__addEventListenerLoaded) {
     const originalAddEventListener = EventTarget.prototype.addEventListener;
 
     EventTarget.prototype.addEventListener = function (type, listener, options) {
-        if (type === 'click' && this.matches('.language--switcher__item a')) {
+        if (type === 'click' && 
+            this instanceof Element &&
+            this.matches('.language--switcher__item a')) {
             const modifiedListener = function (event) {
                 deactivateTranslation();
                 return listener.apply(this, arguments);
