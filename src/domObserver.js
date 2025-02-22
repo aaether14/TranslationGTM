@@ -1,5 +1,5 @@
 import { collectTextNodes } from './textProcessing.js';
-import { requestTranslations, resetTranslations } from './translationManager.js';
+import { requestTranslations } from './translationManager.js';
 import { getStoredLang, setStoredLang, getStoredActive, setStoredActive } from './storageManager.js';
 
 export function setTargetLanguage(language) {
@@ -9,11 +9,6 @@ export function setTargetLanguage(language) {
     if (texts.length > 0) {
         requestTranslations(texts, language, textNodes);
     }
-}
-
-export function deactivateTranslation() {
-    setStoredActive(false);
-    resetTranslations();
 }
 
 export function activateTranslation(language) {

@@ -1,10 +1,6 @@
 import { getStoredLang } from "./storageManager";
 import { getTranslationMapFromAttribute } from "./translationAttributeHandler";
 
-export function containsQuotes(text) {
-    return /['"]/.test(text);
-}
-
 export function collectTextNodes(node) {
     const currentLang = getStoredLang();
 
@@ -17,29 +13,24 @@ export function collectTextNodes(node) {
 
     while (walker.nextNode()) {
         const textNode = walker.currentNode;
-        if (!textNode.parentNode) continue;
-
         const parentNode = textNode.parentNode;
-        const translatedLang = parentNode.getAttribute('data-translated');
+
+        if (!parentNode || parentNode.nodeName === "SCRIPT") {
+            continue;
+        }
         const trimmedText = textNode.nodeValue.trim();
-
-        if (!trimmedText || containsQuotes(trimmedText)) continue;
-
-        const translationMap = getTranslationMapFromAttribute(parentNode);
-        let originalText = trimmedText;
-
-        if (Object.keys(translationMap).length > 0) {
-            for (const [key, value] of Object.entries(translationMap)) {
-                if (value === trimmedText) {
-                    originalText = key;
-                    break;
-                }
-            }
+        if (!trimmedText) {
+            continue;
         }
 
-        if (translatedLang === currentLang) continue;
+        const translationMap = getTranslationMapFromAttribute(parentNode);
 
-        texts.push(originalText);
+        const translatedLang = parentNode.getAttribute('data-translated');
+        if (translatedLang === currentLang && Object.values(translationMap).includes(trimmedText)) {
+            continue;
+        }
+
+        texts.push(trimmedText);
         textNodes.push(textNode);
     }
 

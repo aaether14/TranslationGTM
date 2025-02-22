@@ -43,20 +43,3 @@ const processPendingTranslations = async (targetLang) => {
 
     timeoutId = null;
 };
-
-export const resetTranslations = () => {
-    const translatedNodes = document.querySelectorAll('[data-translated]');
-    translatedNodes.forEach(parentNode => {
-        const translationMap = getTranslationMapFromAttribute(parentNode);
-        parentNode.childNodes.forEach(childNode => {
-            if (childNode.nodeType === Node.TEXT_NODE) {
-                const translatedText = childNode.nodeValue;
-                if (translationMap[translatedText]) {
-                    childNode.nodeValue = translationMap[translatedText];
-                }
-            }
-        });
-        parentNode.removeAttribute('data-translated');
-        parentNode.removeAttribute('data-original-text');
-    });
-};
