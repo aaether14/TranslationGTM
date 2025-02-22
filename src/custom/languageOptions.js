@@ -1,27 +1,41 @@
-import { activateTranslation } from './../domObserver.js';
+import { activateTranslation } from '../domObserver.js';
+import { getStoredActive, getStoredLang } from '../storageManager.js';
+
+const flagPaths = {
+    it: { src: '/assets/img/flags/italy.png', alt: 'Italy' },
+    el: { src: '/assets/img/flags/greece.png', alt: 'Greece' }
+};
 
 export function initializeLanguageOptions() {
+    waitForSelector();
     waitForLangSelector();
 }
 
-function waitForLangSelector() {
-    const observer = new MutationObserver((mutations) => {
-        const langSelector = document.querySelector('.language--switcher__langselector');
-        if (langSelector) {
-            // Add language options if they haven't been added already
-            addLanguageOptions(langSelector);
+function waitForSelector() {
+    const observer = new MutationObserver((mutations, obs) => {
+        const flagSelector = document.querySelector('.language--switcher__selector img');
+        if (flagSelector) {
+            updateFlagAfterReload();
 
-            // Inject custom code for existing languages
-            injectCustomCodeForLanguages(langSelector);
+            obs.disconnect();
         }
     });
 
-    // Observe the entire document for the language selector
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+function waitForLangSelector() {
+    const observer = new MutationObserver((mutations, obs) => {
+        const langSelector = document.querySelector('.language--switcher__langselector');
+        if (langSelector) {
+            addLanguageOptions(langSelector);
+        }
+    });
+
     observer.observe(document.body, { childList: true, subtree: true });
 }
 
 function addLanguageOptions(langSelector) {
-    // Check if the options have already been added
     if (langSelector.querySelector('.language--switcher__item[data-custom-lang="it"]')) {
         return;
     }
@@ -44,25 +58,25 @@ function addLanguageOptions(langSelector) {
         return div;
     }
 
-    // Add Italian
-    langSelector.appendChild(createLanguageItem('/assets/img/flags/italy.png', 'Italian', 'it'));
+    langSelector.appendChild(createLanguageItem(flagPaths.it.src, flagPaths.it.alt, 'it'));
+    langSelector.appendChild(createLanguageItem(flagPaths.el.src, flagPaths.el.alt, 'el'));
 
-    // Add Greek
-    langSelector.appendChild(createLanguageItem('/assets/img/flags/greece.png', 'Greek', 'el'));
-
-    console.log('[TranslationTag] Italian & Greek languages added.');
+    console.log('[TranslationTag] Language options added.');
 }
 
-function injectCustomCodeForLanguages(langSelector) {
-    const existingLanguages = langSelector.querySelectorAll('.language--switcher__item:not([data-custom-lang])');
-    existingLanguages.forEach(langItem => {
-        const langCode = langItem.querySelector('a')?.getAttribute('data-lang-code');
-        if (langCode) {
-            // Inject custom code for existing languages
-            langItem.querySelector('a').addEventListener('click', () => {
-                console.log(`[TranslationTag] Custom code injected for ${langCode}`);
-                // Add your custom code here
-            });
+function updateFlagAfterReload() {
+    if (!getStoredActive())
+    {
+        return;
+    }
+
+    const selectedLanguage = getStoredLang(); 
+    if (selectedLanguage && flagPaths[selectedLanguage]) {
+        const flagImg = document.querySelector('.language--switcher__selector img');
+        if (flagImg) {
+            flagImg.src = flagPaths[selectedLanguage].src;
+            flagImg.alt = flagPaths[selectedLanguage].alt
+            console.log(`[TranslationTag] Flag updated to ${selectedLanguage}`);
         }
-    });
+    }
 }
