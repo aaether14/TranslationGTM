@@ -35,25 +35,43 @@ export function observeDOMChanges() {
         requestTranslations(texts, currentLang, textNodes);
     }
 
+
     const observer = new MutationObserver(mutations => { 
         let isTranslationActive = getStoredActive();
         let currentLang = getStoredLang();
-
+    
         if (!isTranslationActive) { 
             return;
         }
-
+    
         mutations.forEach(mutation => {
-            mutation.addedNodes.forEach(node => {
-                if (node.nodeType === 1) {
-                    const { texts: newTexts, textNodes: newTextNodes } = collectTextNodes(node);
-                    if (newTexts.length > 0) {
-                        requestTranslations(newTexts, currentLang, newTextNodes);
+            if (mutation.type === "childList") {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === 1) {
+                        const { texts: newTexts, textNodes: newTextNodes } = collectTextNodes(node);
+                        if (newTexts.length > 0) {
+                            requestTranslations(newTexts, currentLang, newTextNodes);
+                        }
+                    }
+                });
+            } else if (mutation.type === "characterData") { 
+                const textNode = mutation.target;
+                if (textNode.nodeType === Node.TEXT_NODE) {
+                    const parent = textNode.parentNode;
+                    if (parent) {
+                        const { texts: updatedTexts, textNodes: updatedTextNodes } = collectTextNodes(parent);
+                        if (updatedTexts.length > 0) {
+                            requestTranslations(updatedTexts, currentLang, updatedTextNodes);
+                        }
                     }
                 }
-            });
+            }
         });
     });
-
-    observer.observe(document.body, { childList: true, subtree: true });
+    
+    observer.observe(document.body, { 
+        childList: true, 
+        subtree: true,
+        characterData: true 
+    });
 }

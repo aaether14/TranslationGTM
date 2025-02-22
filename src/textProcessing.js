@@ -12,47 +12,36 @@ export function collectTextNodes(node) {
     const textNodes = [];
     const walker = document.createTreeWalker(
         node,
-        NodeFilter.SHOW_TEXT,
-        {
-            acceptNode: (textNode) => {
-                if (!textNode.parentNode) {
-                    return NodeFilter.FILTER_ACCEPT;
-                }
-
-                const parentNode = textNode.parentNode;
-                const translatedLang = parentNode.getAttribute('data-translated');
-                const trimmedText = textNode.nodeValue.trim();
-
-                if (!trimmedText || containsQuotes(trimmedText)) {
-                    return NodeFilter.FILTER_ACCEPT;
-                }
-
-                const translationMap = getTranslationMapFromAttribute(parentNode);
-
-                let originalText = trimmedText;
-
-                if (Object.keys(translationMap).length > 0) {
-                    for (const [key, value] of Object.entries(translationMap)) {
-                        if (value === trimmedText) {
-                            originalText = key; 
-                            break;
-                        }
-                    }
-                }
-
-                if (translatedLang === currentLang) {
-                    return NodeFilter.FILTER_ACCEPT;
-                }
-
-                texts.push(originalText);
-                textNodes.push(textNode);
-
-                return NodeFilter.FILTER_ACCEPT;
-            }
-        },
-        false
+        NodeFilter.SHOW_TEXT
     );
 
-    while (walker.nextNode()) { } // Traverse the tree
+    while (walker.nextNode()) {
+        const textNode = walker.currentNode;
+        if (!textNode.parentNode) continue;
+
+        const parentNode = textNode.parentNode;
+        const translatedLang = parentNode.getAttribute('data-translated');
+        const trimmedText = textNode.nodeValue.trim();
+
+        if (!trimmedText || containsQuotes(trimmedText)) continue;
+
+        const translationMap = getTranslationMapFromAttribute(parentNode);
+        let originalText = trimmedText;
+
+        if (Object.keys(translationMap).length > 0) {
+            for (const [key, value] of Object.entries(translationMap)) {
+                if (value === trimmedText) {
+                    originalText = key;
+                    break;
+                }
+            }
+        }
+
+        if (translatedLang === currentLang) continue;
+
+        texts.push(originalText);
+        textNodes.push(textNode);
+    }
+
     return { texts, textNodes };
 }
