@@ -1,9 +1,10 @@
-import { observeDOMChanges, activateTranslation } from './domObserver.js';
+import { observeDOMChanges, activateTranslation, deactivateTranslation } from './domObserver.js';
 
 if (!window.__translationObserverLoaded) {
     window.__translationObserverLoaded = true;
 
     window.activateTranslation = activateTranslation;
+    window.deactivateTranslation = deactivateTranslation;
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {

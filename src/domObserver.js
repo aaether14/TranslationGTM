@@ -11,6 +11,12 @@ export function setTargetLanguage(language) {
     }
 }
 
+export function deactivateTranslation(language) {
+    setStoredActive(false);
+    setTargetLanguage('');
+    location.reload();
+}
+
 export function activateTranslation(language) {
     setStoredActive(true);
     setTargetLanguage(language);
