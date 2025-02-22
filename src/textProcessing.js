@@ -1,5 +1,6 @@
 import { getStoredLang } from "./storageManager";
 import { getTranslationMapFromAttribute } from "./translationAttributeHandler";
+import { shouldIncludeNode } from "./nodeFilter";
 
 export function collectTextNodes(node) {
     const currentLang = getStoredLang();
@@ -13,21 +14,26 @@ export function collectTextNodes(node) {
 
     while (walker.nextNode()) {
         const textNode = walker.currentNode;
-        const parentNode = textNode.parentNode;
-
-        if (!parentNode || parentNode.nodeName === "SCRIPT") {
+        if (!shouldIncludeNode(textNode)) {
             continue;
         }
+        
         const trimmedText = textNode.nodeValue.trim();
         if (!trimmedText) {
             continue;
         }
 
+        const parentNode = textNode.parentNode;
         const translationMap = getTranslationMapFromAttribute(parentNode);
 
         const translatedLang = parentNode.getAttribute('data-translated');
-        if (translatedLang === currentLang && Object.values(translationMap).includes(trimmedText)) {
-            continue;
+        if (translatedLang === currentLang)
+        {
+            if (trimmedText in translationMap)
+            {
+                // text already translated.
+                continue;
+            }
         }
 
         texts.push(trimmedText);
