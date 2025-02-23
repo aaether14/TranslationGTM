@@ -2,8 +2,8 @@ import { activateTranslation } from '../domObserver.js';
 import { getStoredActive, getStoredLang } from '../storageManager.js';
 
 const flagPaths = {
-    it: { src: '/assets/img/flags/italy.png', alt: 'Italy' },
-    el: { src: '/assets/img/flags/greece.png', alt: 'Greece' }
+    it: { src: '{{Translation Backend Url}}/images/italy.png', alt: 'Italy' },
+    el: { src: '{{Translation Backend Url}}/images/greece.png', alt: 'Greece' }
 };
 
 export function initializeLanguageOptions() {

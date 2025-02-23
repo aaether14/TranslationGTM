@@ -1,5 +1,5 @@
 export const fetchTranslationsFromApi = async (texts, targetLang) => {
-  const apiUrl = '{{Translation API Url}}';
+  const apiUrl = '{{Translation Backend Url}}/api/translate/bulk';
   const payload = { texts, targetLang };
 
   try {
