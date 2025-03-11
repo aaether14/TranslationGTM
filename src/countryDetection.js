@@ -21,16 +21,27 @@ export const detectCountry = async () => {
 
 export const isAllowedIP = (apiResponse) => {
     try {
-        // Get the allowed IPs from GTM variable
-        const allowedIPs = '{{Translation Allowed IPs}}';
+        // Get the allowed IPs from GTM variable (JSON-encoded)
+        const allowedIPsJson = '{{Translation Allowed IPs}}';
         
         // If allowedIPs is not properly defined or user IP is not available, return false
-        if (!allowedIPs || allowedIPs === '{{Translation Allowed IPs}}' || !apiResponse || !apiResponse.userIP) {
+        if (!allowedIPsJson || !apiResponse || !apiResponse.userIP) {
             return false;
         }
         
-        // Parse the allowed IPs (assuming it's a comma-separated string)
-        const ipList = allowedIPs.split(',').map(ip => ip.trim());
+        // Parse the JSON-encoded IP list
+        let ipList;
+        try {
+            ipList = JSON.parse(allowedIPsJson);
+            // Ensure it's an array
+            if (!Array.isArray(ipList)) {
+                ipList = [ipList.toString()];
+            }
+        } catch (parseError) {
+            // Fallback: treat as a single IP if JSON parsing fails
+            console.error('[TranslationTag] Error parsing allowed IPs JSON:', parseError);
+            ipList = [allowedIPsJson];
+        }
         
         // Check if user's IP is in the allowed list
         return ipList.includes(apiResponse.userIP);
@@ -61,10 +72,13 @@ export const getAvailableLanguagesForCountry = (apiResponse) => {
     const country = apiResponse ? apiResponse.country : null;
     if (!country || typeof country !== 'string') return [];
     
+    // Return specific language for each country
     if (country === 'IT') {
-        return ['it'];
+        return ['it']; // Italian for Italy
     } else if (country === 'EL') {
-        return ['el'];
+        return ['el']; // Greek for Greece
     }
+    
+    // No languages available for other countries
     return [];
 }; 

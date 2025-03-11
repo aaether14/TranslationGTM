@@ -1,10 +1,16 @@
 import { activateTranslation } from '../domObserver.js';
-import { getStoredActive, getStoredLang, setStoredLang } from '../storageManager.js';
+import { getStoredActive, getStoredLang, isUserSelectedLanguage, setUserSelectedLanguage } from '../storageManager.js';
 import { getAvailableLanguagesForCountry } from '../countryDetection.js';
 
 const flagPaths = {
     it: { src: '{{Translation Backend Url}}/images/italy.png', alt: 'Italy' },
     el: { src: '{{Translation Backend Url}}/images/greece.png', alt: 'Greece' }
+};
+
+// Map country codes to language codes
+const countryToLanguage = {
+    'IT': 'it',  // Italy -> Italian
+    'EL': 'el'   // Greece -> Greek
 };
 
 let userCountry = null;
@@ -15,13 +21,33 @@ export function initializeLanguageOptions(apiResponse) {
         userCountry = apiResponse.country;
         availableLanguages = getAvailableLanguagesForCountry(apiResponse);
         
-        // Set default language based on country
-        if (availableLanguages.length > 0 && !getStoredLang()) {
-            try {
-                const defaultLang = availableLanguages[0];
-                setStoredLang(defaultLang);
-            } catch (error) {
-                console.error('[TranslationTag] Error setting default language:', error);
+        // Check if translation is already active and if user has manually selected a language
+        const isActive = getStoredActive();
+        const currentLang = getStoredLang();
+        const userSelected = isUserSelectedLanguage();
+        
+        // If user has manually selected a language, respect that choice
+        if (userSelected) {
+            console.log(`[TranslationTag] Respecting user-selected language: ${currentLang}`);
+        } 
+        // Otherwise, apply the default language based on country
+        else {
+            // Determine the appropriate language
+            let targetLang = '';
+            
+            // If user is from Italy or Greece, use their language
+            if (userCountry && countryToLanguage[userCountry]) {
+                targetLang = countryToLanguage[userCountry];
+            } 
+            // Otherwise, if there are available languages, use the first one
+            else if (availableLanguages.length > 0) {
+                targetLang = availableLanguages[0];
+            }
+            
+            // Only activate if we have a target language
+            if (targetLang && (!isActive || currentLang !== targetLang)) {
+                console.log(`[TranslationTag] Activating translation with default language: ${targetLang}`);
+                activateTranslation(targetLang);
             }
         }
         
@@ -104,6 +130,8 @@ function addLanguageOptions(langSelector) {
                 try {
                     a.addEventListener('click', () => {
                         try {
+                            // Mark this as a user-selected language
+                            setUserSelectedLanguage(true);
                             activateTranslation(langCode);
                         } catch (error) {
                             console.error('[TranslationTag] Error activating translation from language selector:', error);

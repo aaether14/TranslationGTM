@@ -19,11 +19,11 @@ if (!window.__translationTag) {
             const apiResponse = await detectCountry();
             
             if (!shouldActivateForCountry(apiResponse)) {
-                console.log(`[TranslationTag] Not initializing for country: ${apiResponse.country || 'unknown'}`);
+                console.log(`[TranslationTag] Not initializing for country: ${apiResponse.country || 'unknown'} and ip: ${apiResponse.userIP || 'unknown'}`);
                 return;
             }
             
-            console.log(`[TranslationTag] Initializing for country: ${apiResponse.country}`);
+            console.log(`[TranslationTag] Initializing for country: ${apiResponse.country} and ip: ${apiResponse.userIP || 'unknown'}`);
             
             try {
                 observeDOMChanges();

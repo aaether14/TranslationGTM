@@ -1,6 +1,6 @@
 import { collectTextNodes } from './textProcessing.js';
 import { requestTranslations } from './translationManager.js';
-import { getStoredLang, setStoredLang, getStoredActive, setStoredActive } from './storageManager.js';
+import { getStoredLang, setStoredLang, getStoredActive, setStoredActive, setUserSelectedLanguage } from './storageManager.js';
 
 export function setTargetLanguage(language) {
     try {
@@ -21,8 +21,10 @@ export function setTargetLanguage(language) {
 
 export function deactivateTranslation() {
     try {
+        // Clear the active state and language
         setStoredActive(false);
         setStoredLang('');
+        
         location.reload();
     } catch (error) {
         console.error('[TranslationTag] Error deactivating translation:', error);
@@ -31,9 +33,21 @@ export function deactivateTranslation() {
 
 export function activateTranslation(language) {
     try {
+        const currentActive = getStoredActive();
+        const currentLang = getStoredLang();
+        
+        // Only refresh if we're changing state
+        const needsRefresh = !currentActive || (currentLang !== language);
+        
         setStoredActive(true);
         setTargetLanguage(language);
-        location.reload();
+        
+        if (needsRefresh) {
+            console.log(`[TranslationTag] Refreshing page to activate translation: ${language}`);
+            location.reload();
+        } else {
+            console.log(`[TranslationTag] Translation already active with language: ${language}`);
+        }
     } catch (error) {
         console.error('[TranslationTag] Error activating translation:', error);
     }

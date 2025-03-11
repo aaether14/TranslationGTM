@@ -1,4 +1,5 @@
 import { deactivateTranslation } from '../domObserver.js';
+import { setUserSelectedLanguage } from '../storageManager.js';
 
 export function setupEventListenerOverride() {
     const originalAddEventListener = EventTarget.prototype.addEventListener;
@@ -8,6 +9,7 @@ export function setupEventListenerOverride() {
             this instanceof Element &&
             this.matches('.language--switcher__item a')) {
             const modifiedListener = function (event) {
+                setUserSelectedLanguage(true);
                 deactivateTranslation();
                 return listener.apply(this, arguments);
             };
