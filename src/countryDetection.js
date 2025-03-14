@@ -60,7 +60,7 @@ export const shouldActivateForCountry = (apiResponse) => {
     if (!country || typeof country !== 'string') return false;
     
     // Only activate for Italy or Greece
-    return ['IT', 'EL'].includes(country);
+    return ['IT', 'GR'].includes(country);
 };
 
 export const getAvailableLanguagesForCountry = (apiResponse) => {
@@ -75,7 +75,7 @@ export const getAvailableLanguagesForCountry = (apiResponse) => {
     // Return specific language for each country
     if (country === 'IT') {
         return ['it']; // Italian for Italy
-    } else if (country === 'EL') {
+    } else if (country === 'GR') {
         return ['el']; // Greek for Greece
     }
     
