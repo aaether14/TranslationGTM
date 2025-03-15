@@ -5,10 +5,10 @@
 
 // Configuration
 const EMAIL_ADDRESS = 'emporo@emporo.ro';
-const ALERT_TITLE = 'Direct Order Request';
-const ALERT_MESSAGE = 'Instead of using the shopping cart, please contact us directly for your order.';
-const CANCEL_BUTTON_TEXT = 'Cancel';
-const EMAIL_BUTTON_TEXT = 'Email Us';
+const ALERT_TITLE = 'Solicită ofertă';
+const ALERT_MESSAGE = 'Pentru comenzi din afara României, vă rugăm să ne contactați pe email pentru a solicita o ofertă.';
+const CANCEL_BUTTON_TEXT = 'Anulează';
+const EMAIL_BUTTON_TEXT = 'Solicită ofertă';
 
 // Track intercepted buttons to avoid duplicates
 const interceptedButtons = new WeakSet();
