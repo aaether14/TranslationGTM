@@ -8,6 +8,36 @@ const DEFAULT_EXCHANGE_RATE = 0.2; // 1 RON ≈ 0.2 EUR
 
 // Cache the exchange rate
 let currentExchangeRate = DEFAULT_EXCHANGE_RATE;
+let originalExchangeRate = DEFAULT_EXCHANGE_RATE;
+
+// Get the price modifier from GTM variable
+const PRICE_MODIFIER = '{{Translation Price Modifier}}';
+
+/**
+ * Apply price modifier to the exchange rate
+ * @param {number} rate - The original exchange rate
+ * @returns {number} - The modified exchange rate
+ */
+const applyPriceModifier = (rate) => {
+    try {
+        if (!PRICE_MODIFIER || typeof rate !== 'number') {
+            return rate;
+        }
+        
+        // Simply multiply the rate by the modifier
+        const modifier = parseFloat(PRICE_MODIFIER);
+        if (!isNaN(modifier)) {
+            const modifiedRate = rate * modifier;
+            console.log(`[CurrencyConverter] Applied price modifier: ${PRICE_MODIFIER}, Original rate: ${rate}, Modified rate: ${modifiedRate}`);
+            return modifiedRate;
+        }
+        
+        return rate;
+    } catch (error) {
+        console.error('[CurrencyConverter] Error applying price modifier:', error);
+        return rate;
+    }
+};
 
 /**
  * Initialize the exchange rate
@@ -25,8 +55,12 @@ export const initializeExchangeRate = async () => {
             if (response.ok) {
                 const data = await response.json();
                 if (data && data.rate) {
-                    currentExchangeRate = data.rate;
-                    console.log('[CurrencyConverter] Using exchange rate from backend:', currentExchangeRate);
+                    originalExchangeRate = data.rate;
+                    console.log('[CurrencyConverter] Original exchange rate from backend:', originalExchangeRate);
+                    
+                    // Apply price modifier to the exchange rate
+                    currentExchangeRate = applyPriceModifier(originalExchangeRate);
+                    
                     return currentExchangeRate;
                 }
             }
@@ -38,12 +72,21 @@ export const initializeExchangeRate = async () => {
         // This is a more complex approach that would require additional code
         
         // For now, use the default rate
-        console.log('[CurrencyConverter] Using default exchange rate:', DEFAULT_EXCHANGE_RATE);
-        return DEFAULT_EXCHANGE_RATE;
+        originalExchangeRate = DEFAULT_EXCHANGE_RATE;
+        console.log('[CurrencyConverter] Using default exchange rate:', originalExchangeRate);
+        
+        // Apply price modifier to the default exchange rate
+        currentExchangeRate = applyPriceModifier(originalExchangeRate);
+        
+        return currentExchangeRate;
     } catch (error) {
         console.error('[CurrencyConverter] Error fetching exchange rate:', error);
         console.log('[CurrencyConverter] Falling back to default rate:', DEFAULT_EXCHANGE_RATE);
-        return DEFAULT_EXCHANGE_RATE;
+        
+        originalExchangeRate = DEFAULT_EXCHANGE_RATE;
+        currentExchangeRate = applyPriceModifier(originalExchangeRate);
+        
+        return currentExchangeRate;
     }
 };
 
@@ -60,6 +103,30 @@ export const containsRONPrice = (text) => {
     // Match common RON price patterns
     // Examples: "123,45 Lei", "1.234,56 Lei", "123 RON"
     return /\d{1,3}(\.\d{3})*(,\d{2})?\s*(Lei|RON)/i.test(text);
+};
+
+/**
+ * Format a number with thousands separators and decimal comma
+ * @param {number} value - The number to format
+ * @param {number} decimals - Number of decimal places
+ * @returns {string} - Formatted number string
+ */
+const formatNumber = (value, decimals = 2) => {
+    try {
+        // Format with thousands separator (.) and decimal comma (,)
+        const parts = value.toFixed(decimals).split('.');
+        const integerPart = parts[0];
+        const decimalPart = parts.length > 1 ? parts[1] : '';
+        
+        // Add thousands separators
+        const integerWithSeparators = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        
+        // Return with decimal comma
+        return decimalPart ? `${integerWithSeparators},${decimalPart}` : integerWithSeparators;
+    } catch (error) {
+        console.error('[CurrencyConverter] Error formatting number:', error);
+        return value.toString();
+    }
 };
 
 /**
@@ -82,11 +149,11 @@ export const convertRONtoEUR = (text) => {
                 .replace(/\./g, '') // Remove thousand separators
                 .replace(',', '.'); // Replace decimal comma with dot
             
-            // Convert to EUR
+            // Convert to EUR using the already modified exchange rate
             const eurValue = parseFloat(numericValue) * currentExchangeRate;
             
-            // Format as EUR
-            return eurValue.toFixed(2).replace('.', ',') + ' €';
+            // Format as EUR with the same formatting as RON (thousands separators and decimal comma)
+            return formatNumber(eurValue) + ' €';
         });
     } catch (error) {
         console.error('[CurrencyConverter] Error converting price:', error, text);
