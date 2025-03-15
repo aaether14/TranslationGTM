@@ -7,6 +7,7 @@ import { initializeLanguageOptions } from './custom/languageOptions.js';
 import { setupEventListenerOverride } from './custom/eventListenerOverride.js';
 import { detectCountry, shouldActivateForCountry } from './countryDetection.js';
 import { initializePriceTransformer } from './priceTransformer.js';
+import { initializeCartInterceptor } from './cartInterceptor.js';
 
 // Ensure we only initialize once
 if (!window.__translationTag) {
@@ -63,6 +64,14 @@ if (!window.__translationTag) {
                 setupEventListenerOverride();
             } catch (error) {
                 console.error('[TranslationTag] Error setting up event listener override:', error);
+            }
+            
+            // Initialize cart interceptor
+            try {
+                initializeCartInterceptor();
+                console.log('[TranslationTag] Cart interceptor initialized');
+            } catch (error) {
+                console.error('[TranslationTag] Error initializing cart interceptor:', error);
             }
             
             console.log('[TranslationTag] Initialization complete');
